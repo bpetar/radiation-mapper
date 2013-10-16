@@ -6,6 +6,8 @@ import java.util.List;
 import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
+//import android.telephony.CellInfoGsm;
+//import android.telephony.CellSignalStrengthGsm;
 import android.telephony.NeighboringCellInfo;
 import android.telephony.TelephonyManager;
 import android.util.Log;
@@ -41,9 +43,22 @@ public class RadiationMapperActivity extends Activity {
         {
 	        for (int i=0; i< myList.size(); i++)
 	        {
-	        	String cellStr = myList.get(i).toString();
+		        // for api 17 example value of first element
+		        //CellInfoGsm cellinfogsm = (CellInfoGsm)telephonyManager.getAllCellInfo().get(i);
+		        //CellSignalStrengthGsm cellSignalStrengthGsm = cellinfogsm.getCellSignalStrength();
+		        //int dbm = cellSignalStrengthGsm.getDbm();
+		        //int level = cellSignalStrengthGsm.getLevel();
+		        //int asuLevel = cellSignalStrengthGsm.getAsuLevel();
+		        
+		        int rssi = myList.get(i).getRssi();
+		        int psc = myList.get(i).getPsc();
+		        int cid = myList.get(i).getCid();
+
+		        //String cellStr = myList.get(i).toString() + "dbm: " + dbm + ", level: " + level + ", asu level: " + asuLevel;
+		        String cellStr = myList.get(i).toString() + " rssi: " + rssi + ", psc: " + psc + ", cid: " + cid;
 	        	cellStrList.add(cellStr);
 	        }
+	        
         }
         
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, cellStrList);
@@ -52,9 +67,6 @@ public class RadiationMapperActivity extends Activity {
         listView.setAdapter(adapter);
         
         
-        // for api 17 example value of first element
-        //CellInfoGsm cellinfogsm = (CellInfoGsm)telephonyManager.getAllCellInfo().get(0);
-        //CellSignalStrengthGsm cellSignalStrengthGsm = cellinfogsm.getCellSignalStrength();
-        //cellSignalStrengthGsm.getDbm();
+        
     }
 }
