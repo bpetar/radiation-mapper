@@ -8,7 +8,10 @@ import android.content.Context;
 import android.os.Bundle;
 //import android.telephony.CellInfoGsm;
 //import android.telephony.CellSignalStrengthGsm;
+import android.telephony.CellLocation;
 import android.telephony.NeighboringCellInfo;
+import android.telephony.PhoneStateListener;
+import android.telephony.SignalStrength;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.widget.ArrayAdapter;
@@ -20,6 +23,37 @@ public class RadiationMapperActivity extends Activity {
 	
 	public String RM_TAG = "RadiationMapper";
 	
+	public SignalStrength mSignalStrength = null;
+	public CellLocation mCellLocation = null;
+    List<String> mCellStrList = new ArrayList<String>();
+    	
+	// Listener for signal strength.
+    final PhoneStateListener mListener = new PhoneStateListener()
+    {
+            @Override
+            public void onCellLocationChanged(CellLocation mLocation)
+            {
+                    mCellLocation = mLocation;
+                    String slocation = mCellLocation.toString();
+                    Log.d(RM_TAG, "Cell location obtained: " + slocation);
+                    mCellStrList.add("Location: " + slocation);
+                    //update();
+            }
+            
+            @Override
+            public void onSignalStrengthsChanged(SignalStrength sStrength)
+            {
+                    mSignalStrength = sStrength;
+                    String ssignal = mSignalStrength.toString();
+                    Log.d(RM_TAG, "Signal strength obtained: " + ssignal + ", CdmaDbm: " + mSignalStrength.getCdmaDbm());
+                    
+                    
+                    mCellStrList.add("Signal: " + ssignal);
+                    //String[] parts = ssignal.split(" ");
+                    //update();
+            }
+    };
+    	
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -27,9 +61,8 @@ public class RadiationMapperActivity extends Activity {
         
         TelephonyManager telephonyManager = (TelephonyManager)this.getSystemService(Context.TELEPHONY_SERVICE);
         List<NeighboringCellInfo> myList = telephonyManager.getNeighboringCellInfo();
-        
-        List<String> cellStrList = new ArrayList<String>();
-        
+        telephonyManager.listen(mListener, PhoneStateListener.LISTEN_SIGNAL_STRENGTHS | PhoneStateListener.LISTEN_CELL_LOCATION);
+
         if (myList.size()==0)
         {
         	Log.d(RM_TAG, "getNeighboringCellInfo returns empty list");
@@ -37,7 +70,7 @@ public class RadiationMapperActivity extends Activity {
         	//textView.setText("No Cells Available!");
         	
         	String cellStr = "No Cells Available!";
-        	cellStrList.add(cellStr);
+        	mCellStrList.add(cellStr);
         }
         else
         {
@@ -56,12 +89,12 @@ public class RadiationMapperActivity extends Activity {
 
 		        //String cellStr = myList.get(i).toString() + "dbm: " + dbm + ", level: " + level + ", asu level: " + asuLevel;
 		        String cellStr = myList.get(i).toString() + " rssi: " + rssi + ", psc: " + psc + ", cid: " + cid;
-	        	cellStrList.add(cellStr);
+	        	mCellStrList.add(cellStr);
 	        }
 	        
         }
         
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, cellStrList);
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, mCellStrList);
         
         ListView listView = (ListView) findViewById(R.id.listview);
         listView.setAdapter(adapter);
