@@ -1,0 +1,1 @@
+Android application that measures signal strength and creates map of signaling and radiation noises.
